@@ -1,0 +1,161 @@
+System Flow
+
+1. Start / Login
+
+User opens the system.
+
+System shows the Login Page.
+
+User enters their Username and Password.
+
+System checks the credentials:
+
+✅ If correct → Go to Dashboard
+
+❌ If incorrect → Show Error Message
+
+
+
+
+---
+
+2. Dashboard
+
+Displays main menu with system features:
+
+🧾 Document Request
+
+👥 Resident Management
+
+🧑‍💼 Staff/Administrator Management
+
+📊 Reports
+
+⚙️ Settings / Logout
+
+
+User selects what task to perform.
+
+
+
+---
+
+3. Resident Registration (if new user)
+
+Resident fills out registration form:
+
+Name, Address, Contact, etc.
+
+
+System saves resident details to the database.
+
+User can now request documents.
+
+
+
+---
+
+4. Document Request
+
+Resident selects the type of document to request, e.g.:
+
+Barangay Clearance
+
+Certificate of Indigency
+
+Certificate of Residency
+
+
+User fills out request form and submits.
+
+System records the request and assigns a Request Number.
+
+
+
+---
+
+5. Request Verification
+
+Barangay staff checks the submitted request.
+
+Staff verifies resident information and requirements.
+
+If complete:
+
+✅ Request is Approved
+
+Document moves to Processing Stage
+
+
+If not complete:
+
+❌ Request is Rejected with reason.
+
+
+
+
+---
+
+6. Document Processing
+
+System automatically generates a document template.
+
+Staff inputs necessary details (name, date, purpose, etc.).
+
+Document is reviewed and finalized.
+
+
+
+---
+
+7. Payment and Confirmation (optional)
+
+If there’s a document fee, resident is notified of payment details.
+
+Once payment is confirmed, system updates status to “Paid”.
+
+Document is now ready for release.
+
+
+
+---
+
+8. Document Issuance
+
+Barangay staff releases the approved document.
+
+Resident receives:
+
+📄 Printed document, or
+
+📥 Digital copy via system/email.
+
+
+System marks the request as Completed.
+
+
+
+---
+
+9. Reports and Records
+
+System automatically records all transactions.
+
+Admin can generate reports for:
+
+Total requests per day/month
+
+Most requested document types
+
+Pending and completed requests
+
+
+
+
+---
+
+10. Logout
+
+User securely logs out from the system.
+
+System returns to the Login Page.

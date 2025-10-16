@@ -1,0 +1,21 @@
+{
+  "name": "barangaydoc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc --watch",
+    "sass": "sass --watch ./styles/main.scss:./styles/bootstrap.min.css --style=compressed",
+    "dev": "concurrently \"npm run tsc\" \"npm run sass\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/jquery": "^3.5.33",
+    "bootstrap": "^5.3.8",
+    "concurrently": "^9.2.1",
+    "toastify-js": "^1.12.0"
+  }
+}
