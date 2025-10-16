@@ -1,1 +1,7 @@
 node_modules/
+src/
+package.json
+package-lock.json
+
+z.txt
+z2.txt

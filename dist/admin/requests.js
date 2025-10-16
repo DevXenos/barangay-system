@@ -8,6 +8,7 @@ const setTable = () => {
         .on("click", "#acceptBtn", (e) => {
         const id = e.currentTarget.dataset.id;
         const type = e.currentTarget.dataset.type;
+        const processed_by = e.currentTarget.dataset.processed_by;
         const data = setData({
             id,
             status: 'Approved'
@@ -23,6 +24,14 @@ const setTable = () => {
                     const data = result.data;
                     showToast(data.message, {
                         variant: isOkay(data.status) ? "success" : "error",
+                    });
+                    const reportData = setData({
+                        request_id: id,
+                        status: "Pending",
+                        process_by: processed_by
+                    });
+                    axios.post("/api/reports.php", reportData).then((result) => {
+                        return console.table(result);
                     });
                     if (isOkay(data.status)) {
                         showConfirmation({

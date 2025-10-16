@@ -35,11 +35,11 @@
 					</div>
 
 					<div class="mt-3 d-flex gap-2">
-						<button class="btn btn-sm btn-outline-info">
+						<!-- <button class="btn btn-sm btn-outline-info">
 							<i class="bi bi-eye"></i> View
-						</button>
+						</button> -->
 						<?php if ($request['status'] === 'Pending'): ?>
-							<button class="btn btn-sm btn-outline-danger">
+							<button class="cancel-request-btn btn btn-sm btn-outline-danger" data-id="<?= $request['id'] ?>">
 								<i class="bi bi-x-circle"></i> Cancel
 							</button>
 						<?php endif; ?>
@@ -49,3 +49,5 @@
 		<?php endforeach; ?>
 	<?php endif; ?>
 </div>
+
+<script type="module" src="./../dist/user/my-requests.js"></script>

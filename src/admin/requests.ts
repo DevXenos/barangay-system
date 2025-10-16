@@ -13,6 +13,7 @@ const setTable = () => {
 
 			const id = e.currentTarget.dataset.id;
 			const type = e.currentTarget.dataset.type;
+			const processed_by = e.currentTarget.dataset.processed_by;
 
 			const data = setData({
 				id,
@@ -28,29 +29,42 @@ const setTable = () => {
 					axios.post("/api/request.php", data)
 						.then((result) => {
 							
-						const data = result.data as ResultDataType;
+							const data = result.data as ResultDataType;
 
-						showToast(data.message, {
-							variant: isOkay(data.status) ? "success" : "error",
-						});
-
-						if (isOkay(data.status)) {
-							showConfirmation({
-							message: "Request approved successfully! Do you want to print the document now?",
-							cancelText: "Later",
-							confirmText: "Print Now",
-							confirmVariant: "primary",
-							onConfirm() {
-								window.open(`/documents/${type}.php?id=${id}`, '_blank');
-							},
+							showToast(data.message, {
+								variant: isOkay(data.status) ? "success" : "error",
 							});
-						}
+								
+							// Save to report
+							const reportData = setData({
+								request_id: id,
+								status: "Pending",
+								process_by: processed_by
+							});
+								
 
-						$("#requestsTable").load(`${window.location.href} #requestsTable`);
-						setTable();
+							axios.post("/api/reports.php", reportData).then((result) => {
+								return console.table(result);
+							});
+
+							if (isOkay(data.status)) {
+								showConfirmation({
+									message: "Request approved successfully! Do you want to print the document now?",
+									cancelText: "Later",
+									confirmText: "Print Now",
+									confirmVariant: "primary",
+									onConfirm() {
+										window.open(`/documents/${type}.php?id=${id}`, '_blank');
+									},
+								});
+							}
+
+							$("#requestsTable").load(`${window.location.href} #requestsTable`);
+								
+							setTable();
 						});
-					}
-			})
+				}
+			});
 		});
 	
 	// Reject

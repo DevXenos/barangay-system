@@ -69,7 +69,7 @@
 											<i class="bi <?= $icon ?>"></i>
 										</button>
 
-										<button id="acceptBtn" class="btn btn-outline-success btn-sm" title="Approve" <?= !$isPending ? 'disabled' : '' ?> data-id="<?= $request['id'] ?>" data-type="<?= $request['document_type'] ?>">
+										<button id="acceptBtn" class="btn btn-outline-success btn-sm" title="Approve" <?= !$isPending ? 'disabled' : '' ?> data-id="<?= $request['id'] ?>" data-type="<?= $request['document_type'] ?>" data-processed_by="<?php $admin['first_name'] . " " . $admin['last_name'] ?>">
 											<i class="bi bi-check2-circle"></i>
 										</button>
 

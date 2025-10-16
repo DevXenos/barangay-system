@@ -73,18 +73,6 @@ function getAllStaffs()
 	}
 	return $data;
 }
-
-function getAllResidents()
-{
-	global $conn;
-
-	$result = $conn->query("SELECT * FROM `residents` ORDER BY `created_at` DESC");
-	$data = [];
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		$data[] = $row;
-	}
-	return $data;
-}
 ?>
 
 <body class="d-flex p-3 gap-3 overflow-hidden" style="height: 100svh;">

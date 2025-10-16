@@ -37,7 +37,6 @@
 					</div>
 				</div>
 
-
 				<!-- Personal Info: Name + Birthdate + Gender -->
 				<div class="row mb-3">
 					<div class="col-md-4">
@@ -80,15 +79,19 @@
 					</div>
 				</div>
 
-				<!-- Address + Contact -->
+				<!-- Address + Contact + Residency Start Date -->
 				<div class="row mb-3">
-					<div class="col-12 col-md-6">
+					<div class="col-12 col-md-4">
 						<label class="form-label">Address</label>
 						<input type="text" class="form-control" name="address" value="<?= $user['address'] ?>" required>
 					</div>
-					<div class="col-12 col-md-6">
+					<div class="col-12 col-md-4">
 						<label class="form-label">Contact Number</label>
 						<input type="text" class="form-control" name="contact_number" value="<?= $user['contact_number'] ?>" required>
+					</div>
+					<div class="col-12 col-md-4">
+						<label class="form-label">Residency Start Date</label>
+						<input type="date" class="form-control" name="residency_start_date" value="<?= $user['residency_start_date'] ?? '' ?>" required>
 					</div>
 				</div>
 
@@ -129,6 +132,7 @@
 	const birthdateInput = document.querySelector('input[name="birth_date"]');
 	const genderSelect = document.querySelector('select[name="gender"]');
 	const civilStatusSelect = document.querySelector('select[name="civil_status"]');
+	const residencyStartDateInput = document.querySelector('input[name="residency_start_date"]');
 
 	requestForSelect.addEventListener('change', function() {
 		switch (this.value) {
@@ -141,6 +145,8 @@
 				birthdateInput.value = '<?= $user['birth_date'] ?>';
 				genderSelect.value = '';
 				civilStatusSelect.value = '';
+				residencyStartDateInput.value = '<?= $user['residency_start_date'] ?? '' ?>';
+				residencyStartDateInput.disabled = true; // disable for Self
 				break;
 			case 'Child':
 			case 'Husband/Wife':
@@ -152,9 +158,14 @@
 				birthdateInput.value = '';
 				genderSelect.value = '';
 				civilStatusSelect.value = '';
+				residencyStartDateInput.value = '';
+				residencyStartDateInput.disabled = false; // enable for others
 				break;
 		}
 	});
+
+	// Trigger initial state on page load
+	requestForSelect.dispatchEvent(new Event('change'));
 
 	// Enable Bootstrap tooltips
 	const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

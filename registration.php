@@ -9,12 +9,11 @@ include_once './inc/lib.php';
 // If user already has a valid token, redirect to dashboard
 if (isset($_COOKIE['user_token'])) {
 	$token = $_COOKIE['user_token'];
-	$stmt = $conn->prepare('SELECT id FROM `residents` WHERE token = ?');
-	$stmt->bind_param('s', $token);
-	$stmt->execute();
-	$stmt->store_result();
+	$stmt = $conn->prepare('SELECT id FROM residents WHERE token = :token');
+	$stmt->bindValue(':token', $token, SQLITE3_TEXT);
+	$result = $stmt->execute();
 
-	if ($stmt->num_rows > 0) {
+	if ($result && $result->fetchArray(SQLITE3_ASSOC)) {
 		header("Location: /user"); // Redirect to user dashboard
 		exit;
 	} else {
@@ -22,6 +21,8 @@ if (isset($_COOKIE['user_token'])) {
 		setcookie('user_token', '', time() - 3600, '/');
 	}
 }
+
+// residency_start_date add this
 
 ?>
 
@@ -32,7 +33,7 @@ if (isset($_COOKIE['user_token'])) {
 			<!-- Left Side: Registration Form -->
 			<form id="registrationForm" class="col-sm-12 col-md-6 d-flex flex-column justify-content-center align-content-center px-5 py-4">
 				<div class="text-center mb-4">
-					<img src="/assets/img/barangay-logo.png" alt="Barangay Logo" width="80" height="80" class="mb-3">
+					<img src="/assets/img/barangay.jpg" alt="Barangay Logo" width="80" height="80" class="mb-3">
 					<h2 class="fw-bold text-primary">Resident Registration</h2>
 					<p class="text-muted small">Create your account to access barangay services</p>
 				</div>
@@ -133,6 +134,14 @@ if (isset($_COOKIE['user_token'])) {
 						<div class="form-floating">
 							<input name="address" type="text" id="addressInput" class="form-control rounded-3" placeholder="Address" required>
 							<label for="addressInput">Address</label>
+						</div>
+					</div>
+
+					<!-- Residency Start Date -->
+					<div class="col-12">
+						<div class="form-floating">
+							<input name="residency_start_date" type="date" id="residencyStartDateInput" class="form-control rounded-3" placeholder="Residency Start Date" required>
+							<label for="residencyStartDateInput">Residency Start Date</label>
 						</div>
 					</div>
 				</div>

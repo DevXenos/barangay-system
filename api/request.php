@@ -89,4 +89,9 @@ handle([
 			setResult('Failed to update request status. Please try again later.', 500);
 		}
 	},
+
+	// Cancel
+	"delete"=>function($data){
+		global $conn;
+	}
 ]);

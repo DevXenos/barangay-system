@@ -6,6 +6,7 @@ $("#registrationForm").on("submit", (e) => {
     axios.post('/api/user-auth.php', data)
         .then((result) => {
         const data = result.data;
+        console.table(data.data);
         if (data.status === 200 || data.status === 201) {
             window.location.reload();
         }

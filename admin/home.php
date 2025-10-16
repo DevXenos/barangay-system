@@ -5,21 +5,27 @@
 			<div class="card py-3 px-3">
 				<i class="icon bi bi-people-fill"></i>
 				<h6>Total Residents</h6>
-				<div class="stat-value">2,432</div>
+				<div class="stat-value">
+					<?=count(getAllResidents())?>
+				</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-3">
 			<div class="card py-3 px-3">
 				<i class="icon bi bi-hourglass-split"></i>
 				<h6>Pending Requests</h6>
-				<div class="stat-value">84</div>
+				<div class="stat-value">
+					<?= count(getAllRequests("Pending")) ?>
+				</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-3">
 			<div class="card py-3 px-3">
 				<i class="icon bi bi-check2-circle"></i>
 				<h6>Approved Requests</h6>
-				<div class="stat-value">1,128</div>
+				<div class="stat-value">
+					<?= count(getAllRequests("Approved")) ?>
+				</div>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-lg-3">
@@ -27,7 +33,7 @@
 				<i class="icon bi bi-person-badge-fill"></i>
 				<h6>Staff Members</h6>
 				<div class="stat-value">
-					<?= count(getAllStaffs())?>
+					<?= count(getAllStaffs()) ?>
 				</div>
 			</div>
 		</div>
@@ -76,10 +82,14 @@
 		<!-- Requests Section -->
 		<div class="overview-section section-requests">
 			<h5>📄 Recent Requests</h5>
-			<div class="request-status">#REQ_00123 – Barangay Clearance <strong>(Pending)</strong></div>
-			<div class="request-status">#REQ_00122 – Residency Certificate <strong>(Approved)</strong></div>
-			<div class="request-status">#REQ_00121 – Indigency Certificate <strong>(Rejected)</strong></div>
-			<div class="request-status">#REQ_00120 – Business Permit <strong>(Processing)</strong></div>
+			<?php $requests = getAllRequests('*', 5) ?>
+			<?php if(empty($requests)): ?>
+				<div class="request-status">No Request</strong></div>
+			<?php endif ?>
+
+			<?php foreach($requests as $request): ?>
+				<div class="request-status">#<?= $request['id'] ?> – <?= $request['document_type'] ?> <strong>(<?= $request['status']?>)</strong></div>
+			<?php endforeach; ?>
 		</div>
 
 		<!-- Reports Section -->

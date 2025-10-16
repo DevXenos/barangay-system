@@ -99,6 +99,13 @@ function setResult($message, $status = 200, $data = [])
 	exit;
 }
 
+/**
+ * @param array{
+ * 		post?: callable(array):void, 
+ *		get?: callable(array):void,
+ *		delete?: callable(array):void,
+ *		put?: callable(array):void
+ * } $actions */
 function handle(array $actions)
 {
 	$data = getData();
@@ -162,11 +169,44 @@ function getRequestByResidentsId($id)
 	return $data;
 }
 
-function getAllRequests()
+/**
+ * Fetch all requests or filter by a specific valid status.
+ *
+ * @param "*"|"Pending"|"Approved"|"Rejected"|"Cancelled" $status  Status filter (use "*" for all)
+ * @param $limit Request limit
+ * @return array<int, array<string, mixed>> List of requests
+ */
+function getAllRequests($status = "*", $limit = 0)
 {
 	global $conn;
 
-	$result = $conn->query("SELECT * FROM requests ORDER BY created_at DESC");
+	$validStatuses = ['Pending', 'Approved', 'Rejected', 'Cancelled'];
+
+	// Build base query
+	if ($status === "*" || empty($status)) {
+		$query = "SELECT * FROM requests ORDER BY created_at DESC";
+		$stmt = $conn->prepare($query);
+	} elseif (in_array($status, $validStatuses, true)) {
+		$query = "SELECT * FROM requests WHERE status = :status ORDER BY created_at DESC";
+		$stmt = $conn->prepare($query);
+		$stmt->bindValue(':status', $status, SQLITE3_TEXT);
+	} else {
+		return [];
+	}
+
+	// Add limit if specified
+	if ($limit > 0) {
+		$query .= " LIMIT :limit";
+		$stmt = $conn->prepare($query);
+
+		if ($status !== "*" && in_array($status, $validStatuses, true)) {
+			$stmt->bindValue(':status', $status, SQLITE3_TEXT);
+		}
+		$stmt->bindValue(':limit', (int) $limit, SQLITE3_INTEGER);
+	}
+
+	// Execute
+	$result = $stmt->execute();
 
 	$data = [];
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -183,6 +223,69 @@ function getAnnouncements()
 	$result = $conn->query("SELECT * FROM announcements ORDER BY created_at DESC");
 
 	$data = [];
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$data[] = $row;
+	}
+
+	return $data;
+}
+
+function getAllResidents()
+{
+	global $conn;
+
+	$result = $conn->query("SELECT * FROM `residents` ORDER BY `created_at` DESC");
+	$data = [];
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$data[] = $row;
+	}
+	return $data;
+}
+
+function getRequestById($id) {
+	global $conn;
+
+	$stmt = $conn->prepare("SELECT * FROM `requests` WHERE id = :id");
+	$stmt->bindValue(':id', $id, SQLITE3_TEXT);
+	$result = $stmt->execute();
+
+	$row = $result->fetchArray(SQLITE3_ASSOC);
+	return $row ?: null;
+}
+
+function getResidentById($id) {
+	global $conn;
+	
+	$stmt = $conn->prepare("SELECT * FROM `residents` WHERE id = :id");
+	$stmt->bindValue(':id', $id, SQLITE3_TEXT);
+	$result = $stmt->execute();
+	
+	$row = $result->fetchArray(SQLITE3_ASSOC);
+	return $row ?: null;
+}
+
+// Reports
+
+/**
+ * Get all reports, optionally filtered by status
+ *
+ * @param  string $status "*"|"Pending"|"Paid"
+ * @return array
+ */
+function getAllReports($status = "*")
+{
+	global $conn;
+
+	if ($status === "*" || empty($status)) {
+		$stmt = $conn->prepare("SELECT * FROM reports");
+	} else {
+		$stmt = $conn->prepare("SELECT * FROM reports WHERE status = :status");
+		$stmt->bindValue(':status', $status, SQLITE3_TEXT);
+	}
+
+	$result = $stmt->execute();
+	$data = [];
+
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$data[] = $row;
 	}

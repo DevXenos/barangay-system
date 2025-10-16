@@ -57,7 +57,7 @@
 									<?= htmlspecialchars($request['status']) ?>
 								</span>
 								<?php if ($request['status'] === 'Approved'): ?>
-									<a href="/user/download/<?= $request['id'] ?>" class="btn btn-sm btn-primary ms-2">
+									<a href="/documents/<?= $request['document_type'].'.php' ?>?<?= $request['id'] ?>" class="btn btn-sm btn-primary ms-2">
 										<i class="bi bi-download"></i> Download
 									</a>
 								<?php endif; ?>

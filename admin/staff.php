@@ -39,9 +39,9 @@
 								<td><?= htmlspecialchars($staff['phone_number']) ?></td>
 								<td class="text-end">
 									<div class="btn-group">
-										<button class="btn btn-outline-primary btn-sm">
+										<!-- <button class="btn btn-outline-primary btn-sm">
 											<i class="bi bi-eye"></i>
-										</button>
+										</button> -->
 										<button class="btn-edit btn btn-outline-secondary btn-sm"
 											data-id="<?= $staff['id'] ?>"
 											data-first_name="<?= $staff['first_name'] ?>"

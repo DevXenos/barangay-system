@@ -1,14 +1,17 @@
 <?php
+
+// try to get if has id
+
 $full_name = $user['first_name'] . " " . $user['middle_name'][0] . ". " . $user['last_name'];
 ?>
 
 <!-- Header -->
 <div class="bg-primary text-white header">
 	<!-- Profile Picture -->
-	<div class="bg-dark"
+	<!-- <div class="bg-dark"
 		style="width: 200px; aspect-ratio: 1/1; border-radius: 999px; overflow: hidden;">
-		<!-- Add profile img here -->
-	</div>
+		<i class="bs bi-user"></i>
+	</div> -->
 
 	<h3><?= $full_name ?></h3>
 </div>
@@ -24,40 +27,40 @@ $full_name = $user['first_name'] . " " . $user['middle_name'][0] . ". " . $user[
 			<div class="col-12 col-lg-6">
 				<label class="label">
 					<h5>Birthdate</h5>
-					<span>December 05 2003</span>
+					<span><?= date("M j, Y", strtotime($user['birth_date'])) ?></span>
 				</label>
 				<label class="label">
 					<h5>Gender</h5>
-					<span>Male</span>
+					<span><?= $user['gender'] ?></span>
 				</label>
 				<label class="label">
 					<h5>Civil Status</h5>
-					<span>Married</span>
+					<span><?= $user['civil_status'] ?></span>
 				</label>
 			</div>
 
 			<div class="col-12 col-lg-6">
 				<label class="label">
 					<h5>Contact Number</h5>
-					<span>0912 345 6789</span>
+					<span><?= $user['contact_number'] ?></span>
 				</label>
 				<label class="label">
 					<h5>Email Address</h5>
-					<span>test@gmail.com</span>
+					<span><?= $user['email'] ?></span>
 				</label>
 				<label class="label">
 					<h5>Address</h5>
-					<span>Don Pedro</span>
+					<span><?= $user['address'] ?></span>
 				</label>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div class="row">
-	<div class="col-12 col-sm-4">
+<div class="row" style="justify-content: center; align-items: center;">
+	<!-- <div class="col-12 col-sm-4">
 		<button class="w-100 btn btn-primary">Edit Profile</button>
-	</div>
+	</div> -->
 	<div class="col-12 col-sm-4">
 		<a href="/user/request-document" class="w-100 btn btn-secondary d-flex flex-column justify-content-center align-items-center">
 			Request Document
