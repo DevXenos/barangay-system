@@ -9,21 +9,19 @@ include_once './inc/lib.php';
 // If user already has a valid token, redirect to dashboard
 if (isset($_COOKIE['user_token'])) {
 	$token = $_COOKIE['user_token'];
-	$stmt = $conn->prepare('SELECT id FROM residents WHERE token = :token');
-	$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-	$result = $stmt->execute();
 
-	if ($result && $result->fetchArray(SQLITE3_ASSOC)) {
-		header("Location: /user"); // Redirect to user dashboard
+	$stmt = $conn->prepare('SELECT id FROM residents WHERE token = ?');
+	$stmt->bind_param('s', $token);
+	$stmt->execute();
+	$result = $stmt->get_result();
+
+	if ($result && $result->fetch_assoc()) {
+		header("Location: /user");
 		exit;
 	} else {
-		// Invalid token, delete cookie
 		setcookie('user_token', '', time() - 3600, '/');
 	}
 }
-
-// residency_start_date add this
-
 ?>
 
 <body class="bg-light">

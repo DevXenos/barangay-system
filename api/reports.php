@@ -1,5 +1,4 @@
 <?php
-
 require __DIR__ . '/_config.php';
 require __DIR__ . '/_functions.php';
 
@@ -15,22 +14,16 @@ handle([
 		$process_by = $data['process_by'];
 
 		$stmt = $conn->prepare("
-		INSERT INTO `reports` (id, request_id, status, process_by)
-		VALUES (:id, :request_id, :status, :process_by)
+			INSERT INTO reports (id, request_id, status, process_by)
+			VALUES (?, ?, ?, ?)
 		");
-		$stmt->bindValue(":id", $id, SQLITE3_TEXT);
-		$stmt->bindValue(":request_id", $request_id, SQLITE3_TEXT);
-		$stmt->bindValue(":status", $status, SQLITE3_TEXT);
-		$stmt->bindValue(":process_by", $process_by, SQLITE3_TEXT);
+		$stmt->bind_param("ssss", $id, $request_id, $status, $process_by);
 
-		$result = $stmt->execute();
-
-		if($result) {
+		if ($stmt->execute()) {
 			setResult("Report created successfully", 201);
-		}else {
+		} else {
 			setResult("Report failed to create!", 500);
 		}
-
 	},
 
 	// Update to paid
@@ -44,20 +37,17 @@ handle([
 		}
 
 		$stmt = $conn->prepare("
-		UPDATE reports
-		SET status = 'Paid', updated_at = CURRENT_TIMESTAMP
-		WHERE id = :id
-	");
-		$stmt->bindValue(":id", $id, SQLITE3_TEXT);
+			UPDATE reports
+			SET status = 'Paid', updated_at = CURRENT_TIMESTAMP
+			WHERE id = ?
+		");
+		$stmt->bind_param("s", $id);
+		$stmt->execute();
 
-		$result = $stmt->execute();
-
-		if ($result && $conn->changes() > 0) {
+		if ($stmt->affected_rows > 0) {
 			setResult("Report marked as Paid successfully", 200);
-		} elseif ($result) {
-			setResult("No changes made or report not found", 404);
 		} else {
-			setResult("Failed to update report", 500);
+			setResult("No changes made or report not found", 404);
 		}
 	},
 ]);

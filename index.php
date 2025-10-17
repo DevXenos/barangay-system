@@ -9,19 +9,20 @@ include_once './inc/lib.php';
 // If user already has a valid token, redirect to dashboard
 if (isset($_COOKIE['user_token'])) {
 	$token = $_COOKIE['user_token'];
-	$stmt = $conn->prepare('SELECT id FROM residents WHERE token = :token');
-	$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-	$result = $stmt->execute();
 
-	if ($result && $result->fetchArray(SQLITE3_ASSOC)) {
-		header("Location: /user"); // Redirect to user dashboard
+	$stmt = $conn->prepare('SELECT id FROM residents WHERE token = ?');
+	$stmt->bind_param('s', $token);
+	$stmt->execute();
+	$result = $stmt->get_result();
+
+	if ($result && $result->fetch_assoc()) {
+		// header("Location: /user"); // Redirect to user dashboard
 		exit;
 	} else {
 		// Invalid token, delete cookie
 		setcookie('user_token', '', time() - 3600, '/');
 	}
 }
-
 ?>
 
 <body class="bg-light">
@@ -71,7 +72,6 @@ if (isset($_COOKIE['user_token'])) {
 
 			<!-- Right: Illustration / Accent -->
 			<div class="col-sm-12 col-md-6 bg-primary d-flex flex-column align-items-center justify-content-center text-white text-center p-5 position-relative">
-
 				<!-- Soft gradient overlay -->
 				<div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient"
 					style="background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(255,255,255,0.1)); mix-blend-mode: overlay;">

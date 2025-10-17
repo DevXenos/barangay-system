@@ -20,18 +20,12 @@ handle([
 		$id = uniqid('announcement_');
 
 		$stmt = $conn->prepare("
-            INSERT INTO announcements (id, title, description, date, time)
-            VALUES (:id, :title, :description, :date, :time)
-        ");
-		$stmt->bindValue(':id', $id, SQLITE3_TEXT);
-		$stmt->bindValue(':title', $title, SQLITE3_TEXT);
-		$stmt->bindValue(':description', $description, SQLITE3_TEXT);
-		$stmt->bindValue(':date', $date, SQLITE3_TEXT);
-		$stmt->bindValue(':time', $time, SQLITE3_TEXT);
+			INSERT INTO announcements (id, title, description, date, time)
+			VALUES (?, ?, ?, ?, ?)
+		");
+		$stmt->bind_param("sssss", $id, $title, $description, $date, $time);
 
-		$result = $stmt->execute();
-
-		if ($result) {
+		if ($stmt->execute()) {
 			setResult('Announcement uploaded successfully', 201);
 		} else {
 			setResult('Failed to create announcement', 500);

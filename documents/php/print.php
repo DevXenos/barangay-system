@@ -1,23 +1,21 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php'; // Composer autoload
 require __DIR__ . '/../../api/_config.php';
 require __DIR__ . '/../../api/_functions.php';
 
-// Load .env
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+// --- Barangay Information (from your provided .env values) ---
+$barangayName = "Don Pedro";
+$municipality = "Mansalay";
+$province = "Oriental Mindoro";
 
-// Get environment variables
-$barangayName = $_ENV['BARANGAY_NAME'];
-$municipality = $_ENV['BARANGAY_MUNICIPALITY'];
-$province = $_ENV['BARANGAY_PROVINCE'];
-$captain = $_ENV['BARANGAY_CAPTAIN'];
-$secretary = $_ENV['BARANGAY_SECRETARY'];
+$captain = "Danielle Nixon";
+$secretary = "Lois Vasquez";
+// --------------------------------------------------------------
 
 // Get request ID
 $id = $_GET["id"] ?? null;
 
+// Fetch the request
 $request = $id ? getRequestById($id) : null;
 
 // Determine if request is for self
@@ -25,7 +23,7 @@ $isSelf = ($request['request_for'] ?? 'Self') === 'Self';
 
 // If self, get resident info
 if ($isSelf && isset($request['resident_id'])) {
-	$resident = getResidentById($request['resident_id']); // assuming you have this helper
+	$resident = getResidentById($request['resident_id']); // helper function
 	$full_name = $resident['first_name'] . " " . ($resident['middle_name'][0] ?? '') . '. ' . $resident['last_name'];
 	$gender = $resident['gender'] ?? 'Male';
 	$address = $resident['address'] ?? "Barangay $barangayName, $municipality, $province";

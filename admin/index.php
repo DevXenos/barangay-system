@@ -2,26 +2,26 @@
 require __DIR__ . '/../api/_config.php';
 require __DIR__ . '/../api/_functions.php';
 
-$title = "Admin Login"; // default
+$title = "Admin Login";
 include './../inc/lib.php'; // Header
 
-$show_login = true; // show login by default
+$show_login = true;
 $admin = null;
 
 $token = $_COOKIE['token'] ?? "";
 
-// Check token if exists
+// --- Check token ---
 if ($token) {
-	$stmt = $conn->prepare("SELECT id, first_name, last_name, email, phone_number, role FROM staffs WHERE token = :token");
-	$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-	$result = $stmt->execute();
-	$admin = $result->fetchArray(SQLITE3_ASSOC);
+	$stmt = $conn->prepare("SELECT id, first_name, last_name, email, phone_number, role FROM staffs WHERE token = ?");
+	$stmt->bind_param("s", $token);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$admin = $result->fetch_assoc();
 
 	if ($admin) {
 		$show_login = false;
 		$title = "Dashboard";
 	} else {
-		// Invalid token → delete cookie
 		setcookie('token', '', time() - 3600, '/');
 	}
 }
@@ -31,44 +31,37 @@ $path = rtrim($path, '/');
 if ($path === '') $path = '/';
 
 if ($show_login && $path !== '/admin') {
-	// Make sure is always on admin
 	header('Location: /admin');
 	exit;
 }
 
 if ($show_login && $path === '/admin') {
-	// If no token then path is on admin then show login.php
 	include __DIR__ . '/login.php';
 	exit;
 }
 
-// At this point, $admin is valid
-
-// Declare all functions
+// ---------------- FUNCTIONS ---------------- //
 function getAllAnnouncement()
 {
 	global $conn;
-
+	$data = [];
 	$stmt = $conn->prepare('SELECT * FROM announcements ORDER BY `date` DESC');
 	if ($stmt) {
-		$result = $stmt->execute();
-		$data = [];
-		while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$stmt->execute();
+		$result = $stmt->get_result();
+		while ($row = $result->fetch_assoc()) {
 			$data[] = $row;
 		}
-		return $data;
 	}
-
-	return [];
+	return $data;
 }
 
 function getAllStaffs()
 {
 	global $conn;
-
-	$result = $conn->query("SELECT * FROM `staffs` ORDER BY `created_at` DESC");
 	$data = [];
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	$result = $conn->query("SELECT * FROM `staffs` ORDER BY `created_at` DESC");
+	while ($row = $result->fetch_assoc()) {
 		$data[] = $row;
 	}
 	return $data;
@@ -76,7 +69,7 @@ function getAllStaffs()
 ?>
 
 <body class="d-flex p-3 gap-3 overflow-hidden" style="height: 100svh;">
-	<!-- Sidebar and Main content below -->
+	<!-- Sidebar -->
 	<aside class="sidebar overflow-auto" style="width: 230px; max-width: 230px; width: 100%; height: 100%;">
 		<div class="mb-4">
 			<h5>Barangay Admin</h5>
@@ -86,7 +79,7 @@ function getAllStaffs()
 
 		<nav class="nav d-flex flex-column flex-fill gap-1">
 			<a href="/admin" class="nav-link <?= $path === '/admin' ? 'active' : '' ?>">🏠 Dashboard</a>
-			<a href="/admin/residents" class="nav-link <?= $path === '/admin/residents' ? 'active' : '' ?>">👥 Residents</a>
+			<a href="/admin/residents" class="nav-link <?= str_starts_with($path, '/admin/residents') ? 'active' : '' ?>">👥 Residents</a>
 			<a href="/admin/staff" class="nav-link <?= $path === '/admin/staff' ? 'active' : '' ?>">🧑‍💼 Staff</a>
 			<a href="/admin/requests" class="nav-link <?= $path === '/admin/requests' ? 'active' : '' ?>">🧾 Requests</a>
 			<a href="/admin/reports" class="nav-link <?= $path === '/admin/reports' ? 'active' : '' ?>">📊 Reports</a>
@@ -97,13 +90,18 @@ function getAllStaffs()
 		</nav>
 	</aside>
 
+	<!-- Main -->
 	<main class="flex-fill bg-transparent d-flex flex-column" style="overflow: auto;">
 		<?php
 		include __DIR__ . '/../dialogs/confirmation-dialog.php';
 
+		// Detect resident profile if profile_id exists
+		$profileId = $_GET['profile_id'] ?? null;
+
+		// Default routes
 		$routes = [
 			'/admin' => './home.php',
-			'/admin/residents' => './residents.php',
+			'/admin/residents' => $profileId ? './residents-profile.php' : './residents.php',
 			'/admin/staff' => './staff.php',
 			'/admin/requests' => './requests.php',
 			'/admin/reports' => './reports.php',
@@ -119,6 +117,7 @@ function getAllStaffs()
 	</main>
 
 	<?php
+	// JS / Dialogs per page
 	switch ($path) {
 		case '/admin':
 			include __DIR__ . '/../dialogs/add-new-announcement.php';
@@ -129,8 +128,17 @@ function getAllStaffs()
 			include __DIR__ . '/../dialogs/add-new-staff.php';
 			echo '<script type="module" src="./../dist/admin/staff.js"></script>';
 			break;
+
 		case '/admin/settings':
 			echo '<script type="module" src="./../dist/admin/settings.js"></script>';
+			break;
+
+		case '/admin/residents':
+			if ($profileId) {
+				echo '<script type="module" src="./../dist/admin/residents-profile.js"></script>';
+			} else {
+				echo '<script type="module" src="./../dist/admin/residents.js"></script>';
+			}
 			break;
 	}
 	?>
@@ -153,25 +161,20 @@ function getAllStaffs()
 	.sidebar .nav-link:hover {
 		background-color: #f0f6ff;
 		color: #0d6efd;
-		text-decoration: none;
 	}
 
-	/* Highlight selected link */
 	.sidebar .nav-link.active {
 		background-color: #e7f1ff;
 		color: #0d6efd;
 		font-weight: 600;
 		border-left: 4px solid #0d6efd;
 		padding-left: 8px;
-		/* adjust so border doesn't shift content */
 	}
 
 	.sidebar .nav-link.active:hover {
 		background-color: #d0e4ff;
-		/* slightly stronger on hover */
 	}
 
-	/* Logout button */
 	.sidebar .nav-link.text-danger {
 		cursor: pointer;
 	}

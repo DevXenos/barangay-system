@@ -35,29 +35,34 @@
 							<tr style="height: 60px;">
 								<td colspan="6" class="text-center">No Residents</td>
 							</tr>
-						<?php endif;
-						foreach ($residents as $index => $resident): ?>
+						<?php endif; ?>
+						<?php foreach ($residents as $index => $resident): ?>
 							<tr style="height: 60px;">
 								<th scope="row"><?= $index + 1 ?></th>
-								<td>John Reyes</td>
-								<td>john.reyes@email.com</td>
-								<td>Purok 1, Zone 2</td>
-								<td>0917-111-2233</td>
+								<td><?= htmlspecialchars($resident['first_name'] . ' ' . ($resident['middle_name'] ?? '') . ' ' . $resident['last_name']) ?></td>
+								<td><?= htmlspecialchars($resident['email']) ?></td>
+								<td><?= htmlspecialchars($resident['address']) ?></td>
+								<td><?= htmlspecialchars($resident['contact_number']) ?></td>
 								<td class="text-end">
 									<div class="btn-group">
-										<button class="btn btn-outline-primary btn-sm">
+										<!-- View Profile Button -->
+										<a href="/admin/residents?profile_id=<?= urlencode($resident['id']) ?>" class="btn btn-outline-primary btn-sm d-flex justify-content-center align-items-center">
 											<i class="bi bi-eye"></i>
-										</button>
+										</a>
+
+										<!-- Edit Button -->
 										<button class="btn btn-outline-secondary btn-sm">
 											<i class="bi bi-pencil"></i>
 										</button>
+
+										<!-- Delete Button -->
 										<button class="btn btn-outline-danger btn-sm">
 											<i class="bi bi-trash"></i>
 										</button>
 									</div>
 								</td>
 							</tr>
-						<?php endforeach; ?>
+							<?php endforeach; ?>
 					</tbody>
 				</table>
 			</div>

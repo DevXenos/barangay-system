@@ -19,10 +19,11 @@ handle([
 		}
 
 		// Fetch staff/admin
-		$stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, role FROM staffs WHERE email = :email");
-		$stmt->bindValue(':email', $email, SQLITE3_TEXT);
-		$result = $stmt->execute();
-		$staff = $result->fetchArray(SQLITE3_ASSOC);
+		$stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, role FROM staffs WHERE email = ?");
+		$stmt->bind_param("s", $email);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$staff = $result->fetch_assoc();
 
 		if (!$staff) {
 			setResult('Staff not found', 404);
@@ -44,10 +45,9 @@ handle([
 		]);
 
 		// Save token in database
-		$stmt = $conn->prepare("UPDATE staffs SET token = :token WHERE id = :id");
-		$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-		$stmt->bindValue(':id', $staff['id'], SQLITE3_TEXT);
-		$stmt->execute();
+		$update = $conn->prepare("UPDATE staffs SET token = ? WHERE id = ?");
+		$update->bind_param("si", $token, $staff['id']);
+		$update->execute();
 
 		setResult('Login successful', 200, [
 			'id' => $staff['id'],
@@ -71,8 +71,8 @@ handle([
 		}
 
 		// Clear the token in the database
-		$stmt = $conn->prepare("UPDATE staffs SET token = NULL WHERE token = :token");
-		$stmt->bindValue(':token', $token, SQLITE3_TEXT);
+		$stmt = $conn->prepare("UPDATE staffs SET token = NULL WHERE token = ?");
+		$stmt->bind_param("s", $token);
 		$stmt->execute();
 
 		// Delete the cookie
@@ -107,10 +107,11 @@ handle([
 		}
 
 		// Get current hashed password from DB based on token
-		$stmt = $conn->prepare("SELECT id, password FROM staffs WHERE token = :token");
-		$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-		$result = $stmt->execute();
-		$admin = $result->fetchArray(SQLITE3_ASSOC);
+		$stmt = $conn->prepare("SELECT id, password FROM staffs WHERE token = ?");
+		$stmt->bind_param("s", $token);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$admin = $result->fetch_assoc();
 
 		if (!$admin) {
 			return setResult('Admin not found', 404);
@@ -130,9 +131,8 @@ handle([
 		$hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
 
 		// Update the password in DB
-		$update = $conn->prepare("UPDATE staffs SET password = :password WHERE id = :id");
-		$update->bindValue(':password', $hashed_new_password, SQLITE3_TEXT);
-		$update->bindValue(':id', $admin['id'], SQLITE3_TEXT);
+		$update = $conn->prepare("UPDATE staffs SET password = ? WHERE id = ?");
+		$update->bind_param("si", $hashed_new_password, $admin['id']);
 
 		if ($update->execute()) {
 			setResult('Password updated successfully', 200);

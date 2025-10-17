@@ -18,25 +18,26 @@ handle([
 
 		// Prepare insert statement
 		$stmt = $conn->prepare("
-            INSERT INTO staffs 
-            (id, first_name, last_name, email, phone_number, role, password)
-            VALUES (:id, :first_name, :last_name, :email, :phone_number, :role, :password)
-        ");
+			INSERT INTO staffs 
+			(id, first_name, last_name, email, phone_number, role, password)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		");
 
-		$stmt->bindValue(':id', $id, SQLITE3_TEXT);
-		$stmt->bindValue(':first_name', $data['first_name'], SQLITE3_TEXT);
-		$stmt->bindValue(':last_name', $data['last_name'], SQLITE3_TEXT);
-		$stmt->bindValue(':email', $data['email'], SQLITE3_TEXT);
-		$stmt->bindValue(':phone_number', $data['phone_number'], SQLITE3_TEXT);
-		$stmt->bindValue(':role', $data['role'], SQLITE3_TEXT);
-		$stmt->bindValue(':password', $hashedPassword, SQLITE3_TEXT);
+		$stmt->bind_param(
+			"sssssss",
+			$id,
+			$data['first_name'],
+			$data['last_name'],
+			$data['email'],
+			$data['phone_number'],
+			$data['role'],
+			$hashedPassword
+		);
 
-		$result = $stmt->execute();
-
-		if ($result) {
+		if ($stmt->execute()) {
 			setResult('Staff created successfully', 201);
 		} else {
-			setResult('Failed to create staff', 500);
+			setResult('Failed to create staff: ' . $stmt->error, 500);
 		}
 	},
 
@@ -49,16 +50,14 @@ handle([
 			setResult('Staff ID is required', 400);
 		}
 
-		$stmt = $conn->prepare("DELETE FROM staffs WHERE id = :id");
-		$stmt->bindValue(':id', $id, SQLITE3_TEXT);
-		$result = $stmt->execute();
+		$stmt = $conn->prepare("DELETE FROM staffs WHERE id = ?");
+		$stmt->bind_param("s", $id);
+		$stmt->execute();
 
-		if ($result && $conn->changes() > 0) {
+		if ($stmt->affected_rows > 0) {
 			setResult('Staff deleted successfully', 200);
-		} elseif ($result) {
-			setResult('Staff not found', 404);
 		} else {
-			setResult('Failed to delete staff', 500);
+			setResult('Staff not found or failed to delete', 404);
 		}
 	},
 
@@ -66,7 +65,6 @@ handle([
 		global $conn;
 
 		$id = $data['id'] ?? null;
-
 		if (!$id) {
 			setResult('Staff ID is required', 400);
 		}
@@ -85,34 +83,43 @@ handle([
 		if ($password) {
 			$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 			$stmt = $conn->prepare("
-                UPDATE staffs 
-                SET first_name = :first_name, last_name = :last_name, email = :email, phone_number = :phone_number, role = :role, password = :password
-                WHERE id = :id
-            ");
-			$stmt->bindValue(':password', $hashedPassword, SQLITE3_TEXT);
+				UPDATE staffs 
+				SET first_name = ?, last_name = ?, email = ?, phone_number = ?, role = ?, password = ?
+				WHERE id = ?
+			");
+			$stmt->bind_param(
+				"sssssss",
+				$firstName,
+				$lastName,
+				$email,
+				$phoneNumber,
+				$role,
+				$hashedPassword,
+				$id
+			);
 		} else {
 			$stmt = $conn->prepare("
-                UPDATE staffs 
-                SET first_name = :first_name, last_name = :last_name, email = :email, phone_number = :phone_number, role = :role
-                WHERE id = :id
-            ");
+				UPDATE staffs 
+				SET first_name = ?, last_name = ?, email = ?, phone_number = ?, role = ?
+				WHERE id = ?
+			");
+			$stmt->bind_param(
+				"ssssss",
+				$firstName,
+				$lastName,
+				$email,
+				$phoneNumber,
+				$role,
+				$id
+			);
 		}
 
-		$stmt->bindValue(':first_name', $firstName, SQLITE3_TEXT);
-		$stmt->bindValue(':last_name', $lastName, SQLITE3_TEXT);
-		$stmt->bindValue(':email', $email, SQLITE3_TEXT);
-		$stmt->bindValue(':phone_number', $phoneNumber, SQLITE3_TEXT);
-		$stmt->bindValue(':role', $role, SQLITE3_TEXT);
-		$stmt->bindValue(':id', $id, SQLITE3_TEXT);
+		$stmt->execute();
 
-		$result = $stmt->execute();
-
-		if ($result && $conn->changes() > 0) {
+		if ($stmt->affected_rows > 0) {
 			setResult('Staff updated successfully', 200);
-		} elseif ($result) {
-			setResult('No changes made or staff not found', 404);
 		} else {
-			setResult('Failed to update staff', 500);
+			setResult('No changes made or staff not found', 404);
 		}
 	}
 ]);

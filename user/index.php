@@ -1,5 +1,4 @@
 <?php
-
 require __DIR__ . '/../api/_config.php';
 require __DIR__ . '/../api/_functions.php';
 
@@ -12,11 +11,12 @@ if (!$token) {
 	header("Location: /");
 	exit;
 } else {
-	$stmt = $conn->prepare('SELECT * FROM residents WHERE token = :token');
-	$stmt->bindValue(':token', $token, SQLITE3_TEXT);
-	$result = $stmt->execute();
+	$stmt = $conn->prepare('SELECT * FROM residents WHERE token = ?');
+	$stmt->bind_param('s', $token);
+	$stmt->execute();
+	$result = $stmt->get_result();
 
-	$user = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	$user = $result ? $result->fetch_assoc() : false;
 
 	if (!$user) {
 		setcookie('user_token', '', time() - 3600, '/');
@@ -40,7 +40,6 @@ $routes = [
 	'/user/announcements' => './announcements.php',
 	'/user/request-document' => './request-document.php'
 ];
-
 ?>
 
 <body class="bg-light d-flex flex-column min-vh-100">
